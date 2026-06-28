@@ -102,3 +102,55 @@ button, input, textarea, select {
     justify-content: center;
   }
 }
+
+/* Custom interactive buttons */
+.btn-gold {
+  background: var(--accent-gold);
+  color: #000 !important;
+  padding: 14px 32px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 15px;
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+  display: inline-block;
+  transition: var(--transition);
+}
+
+.btn-gold:hover {
+  background: var(--accent-gold-hover);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 14px 32px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 15px;
+  display: inline-block;
+  transition: var(--transition);
+}
+
+.btn-outline:hover {
+  border-color: var(--accent-gold);
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+.btn-whatsapp {
+  background: #25D366;
+  color: #fff !important;
+  text-align: center;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  display: block;
+  transition: var(--transition);
+}
+
+.btn-whatsapp:hover {
+  background: #128C7E;
+  transform: translateY(-2px);
+}

@@ -3,6 +3,8 @@ import db from '@/db';
 import { verifyWebhookSignature } from '@/lib/payments';
 import { config } from '@/lib/config';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = await req.json();

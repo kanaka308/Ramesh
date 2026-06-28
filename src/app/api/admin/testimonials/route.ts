@@ -3,6 +3,8 @@ import { cookies } from 'next/headers';
 import db from '@/db';
 import { verifySessionToken } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     // Validate admin session

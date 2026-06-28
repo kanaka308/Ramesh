@@ -3,6 +3,8 @@ import db from '@/db';
 import { generateMagicLinkToken } from '@/lib/auth';
 import { sendMagicLinkEmail } from '@/lib/mail';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();

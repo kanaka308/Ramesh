@@ -93,30 +93,8 @@ export default async function HomePage() {
           </p>
           
           <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="#bootcamp-section" style={{
-              background: 'var(--accent-gold)',
-              color: '#000',
-              padding: '14px 32px',
-              borderRadius: '30px',
-              fontWeight: 600,
-              fontSize: '15px',
-              boxShadow: '0 4px 20px rgba(212, 175, 55, 0.3)'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--accent-gold-hover)'}
-            onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-gold)'}
-            >Explore Bootcamps</a>
-            <a href="/courses" style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: '#fff',
-              padding: '14px 32px',
-              borderRadius: '30px',
-              fontWeight: 600,
-              fontSize: '15px'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--accent-gold)'}
-            onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
-            >Recorded Storefront</a>
+            <a href="#bootcamp-section" className="btn-gold">Explore Bootcamps</a>
+            <a href="/courses" className="btn-outline">Recorded Storefront</a>
           </div>
         </div>
       </section>
@@ -199,24 +177,7 @@ export default async function HomePage() {
                     href={waLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{
-                      background: '#25D366', // Brand WhatsApp green
-                      color: '#fff',
-                      textAlign: 'center',
-                      padding: '12px 24px',
-                      borderRadius: '8px',
-                      fontWeight: 600,
-                      display: 'block',
-                      transition: 'transform 0.3s ease, background-color 0.3s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#128C7E';
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#25D366';
-                      e.currentTarget.style.transform = 'translateY(0)';
-                    }}
+                    className="btn-whatsapp"
                   >
                     Enquire on WhatsApp
                   </a>

@@ -3,6 +3,8 @@ import db from '@/db';
 import { verifyWebhookSignature } from '@/lib/payments';
 import { config } from '@/lib/config';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.text();

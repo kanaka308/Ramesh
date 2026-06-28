@@ -5,6 +5,8 @@ import { verifySessionToken } from '@/lib/auth';
 import { config } from '@/lib/config';
 import Razorpay from 'razorpay';
 
+export const dynamic = 'force-dynamic';
+
 interface Course {
   id: number;
   title: string;
