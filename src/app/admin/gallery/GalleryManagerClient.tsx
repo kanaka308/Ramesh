@@ -200,7 +200,7 @@ export default function GalleryManagerClient({ initialItems }: GalleryManagerCli
       )}
 
       {activeTab === 'photos' ? (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '40px', alignItems: 'flex-start' }}>
+        <div className="admin-editor-grid">
           
           {/* Upload Form */}
           <div className="glass-card" style={{ padding: '24px' }}>

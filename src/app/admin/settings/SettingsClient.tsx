@@ -97,7 +97,7 @@ export default function SettingsClient({ initialSettings }: SettingsClientProps)
           Header & Brand Details
         </h3>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div className="admin-settings-grid">
           <div style={{ gridColumn: 'span 2' }}>
             <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>Upload Brand Logo (.jpg/.png)</label>
             <input

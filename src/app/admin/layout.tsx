@@ -18,25 +18,27 @@ export default function AdminLayout({
   // Let's allow pages to check themselves or keep layout rendering clean.
 
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: '260px 1fr',
-      minHeight: '100vh',
-      background: 'var(--bg-gradient)',
-      backgroundAttachment: 'scroll',
-      color: '#fff'
-    }}>
+    <div className="admin-container">
+      {/* Pure CSS Checkbox Toggle for Sidebar */}
+      <input type="checkbox" id="admin-sidebar-toggle" style={{ display: 'none' }} />
+      
+      {/* Tap Overlay to Close Sidebar */}
+      <label htmlFor="admin-sidebar-toggle" className="admin-sidebar-overlay" />
+
+      {/* Mobile Sticky Header */}
+      <div className="admin-mobile-header">
+        <a href="/admin/batches" style={{ fontWeight: 'bold', fontSize: '16px', color: 'var(--accent-gold)' }}>
+          Instructor Dashboard
+        </a>
+        <label htmlFor="admin-sidebar-toggle" className="admin-hamburger">
+          <span />
+          <span />
+          <span />
+        </label>
+      </div>
+
       {/* Sidebar Navigation */}
-      <aside style={{
-        background: 'rgba(12, 12, 18, 0.65)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderRight: '1px solid rgba(255, 255, 255, 0.05)',
-        padding: '45px 20px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '30px'
-      }}>
+      <aside className="admin-sidebar">
         <div style={{ fontWeight: 'bold', fontSize: '18px', color: 'var(--accent-gold)' }}>
           Instructor Dashboard
         </div>
@@ -88,7 +90,7 @@ export default function AdminLayout({
       </aside>
 
       {/* Main Admin Content Workspace */}
-      <main style={{ padding: '40px', overflowY: 'auto' }}>
+      <main className="admin-main">
         {children}
       </main>
     </div>

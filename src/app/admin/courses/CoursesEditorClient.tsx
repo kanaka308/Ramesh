@@ -296,7 +296,7 @@ export default function CoursesEditorClient({ initialCourses }: CoursesEditorCli
 
       {activeCourseId === null ? (
         /* Course list & upload view */
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '40px', alignItems: 'flex-start' }}>
+        <div className="admin-editor-grid">
           
           {/* Add Course Form */}
           <div className="glass-card" style={{ padding: '24px' }}>
@@ -644,7 +644,7 @@ export default function CoursesEditorClient({ initialCourses }: CoursesEditorCli
             </button>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '40px', alignItems: 'flex-start' }}>
+          <div className="admin-editor-grid">
             
             {/* Add Lecture form */}
             <div style={{ background: 'rgba(255, 255, 255, 0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '12px', padding: '20px' }}>

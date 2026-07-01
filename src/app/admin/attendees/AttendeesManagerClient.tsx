@@ -343,7 +343,7 @@ export default function AttendeesManagerClient({ initialRegistrations, batches }
         <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#fff', marginBottom: '20px' }}>Active Registrations ({registrations.length})</h3>
 
         {registrations.length > 0 ? (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px', textAlign: 'left' }}>
+          <table className="admin-table">
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: 'var(--text-secondary)' }}>
                 <th style={{ padding: '12px 16px' }}>Student</th>

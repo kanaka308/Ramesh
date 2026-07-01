@@ -149,7 +149,7 @@ export default function TestimonialsManagerClient({ initialList }: TestimonialsM
   };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '40px', alignItems: 'flex-start' }}>
+    <div className="admin-editor-grid">
       {/* Add Form */}
       <div className="glass-card" style={{ padding: '24px' }}>
         <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#fff', marginBottom: '20px' }}>Add Testimonial</h3>

@@ -127,7 +127,7 @@ export default function EnrollmentsClient({ initialEnrollments, courses }: Enrol
       <div className="glass-card" style={{ padding: '24px' }}>
         <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#fff', marginBottom: '20px' }}>Grant Direct Course Access</h3>
         
-        <form onSubmit={handleGrantAccess} style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr', gap: '20px', alignItems: 'end' }}>
+        <form onSubmit={handleGrantAccess} className="admin-enrollments-form">
           <div>
             <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>Student Email Address</label>
             <input
@@ -199,7 +199,7 @@ export default function EnrollmentsClient({ initialEnrollments, courses }: Enrol
         <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#fff', marginBottom: '20px' }}>Active Course Enrollments ({enrollments.length})</h3>
 
         {enrollments.length > 0 ? (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px', textAlign: 'left' }}>
+          <table className="admin-table">
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: 'var(--text-secondary)' }}>
                 <th style={{ padding: '12px 16px' }}>Student Email</th>
