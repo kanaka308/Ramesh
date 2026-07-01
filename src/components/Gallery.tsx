@@ -15,13 +15,13 @@ interface GalleryProps {
 
 export default function Gallery({ initialItems }: GalleryProps) {
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [items] = useState<GalleryItem[]>(initialItems);
+  const items = initialItems || [];
 
-  const categories = ['All', ...Array.from(new Set(items.map(item => item.category)))];
+  const categories = ['All', ...Array.from(new Set((items || []).map(item => item?.category).filter(Boolean)))];
 
   const filteredItems = selectedCategory === 'All' 
-    ? items 
-    : items.filter(item => item.category === selectedCategory);
+    ? (items || [])
+    : (items || []).filter(item => item && item.category === selectedCategory);
 
   return (
     <section id="portfolio-section" style={{ padding: '80px 5%', background: '#0a0a0c' }}>
@@ -64,6 +64,7 @@ export default function Gallery({ initialItems }: GalleryProps) {
           <div
             key={item.id}
             id={`gallery-item-${item.id}`}
+            className="glass-card"
             style={{
               position: 'relative',
               borderRadius: '16px',
@@ -71,35 +72,54 @@ export default function Gallery({ initialItems }: GalleryProps) {
               aspectRatio: '3/2',
               background: '#151518',
               border: '1px solid rgba(255, 255, 255, 0.05)',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              padding: 0
             }}
           >
-            {/* Display a beautiful simulated photo using CSS gradients if image file isn't found */}
             <div style={{
               width: '100%',
               height: '100%',
-              background: `linear-gradient(135deg, #1f1f23 0%, #111115 100%)`,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
               position: 'relative'
             }}>
-              {/* Camera Aperture Vector Pattern / Placeholder Art */}
-              <div style={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '50%',
-                border: '2px dashed var(--accent-gold)',
-                opacity: 0.3,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '10px'
-              }}>
-                📷
-              </div>
-              <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{item.category} Frame</span>
+              {item.file_path ? (
+                <img 
+                  src={item.file_path.startsWith('/images/upload_') ? item.file_path.replace('/images/', '/api/images/') : item.file_path} 
+                  alt={item.caption} 
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    display: 'block',
+                    transition: 'transform 0.4s ease'
+                  }}
+                  className="gallery-image"
+                />
+              ) : (
+                <div style={{
+                  width: '100%',
+                  height: '100%',
+                  background: `linear-gradient(135deg, #1f1f23 0%, #111115 100%)`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}>
+                  <div style={{
+                    width: '60px',
+                    height: '60px',
+                    borderRadius: '50%',
+                    border: '2px dashed var(--accent-gold)',
+                    opacity: 0.3,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '10px'
+                  }}>
+                    📷
+                  </div>
+                  <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{item.category} Frame</span>
+                </div>
+              )}
               
               {/* Caption Overlay - displays on hover */}
               <div style={{
@@ -113,7 +133,8 @@ export default function Gallery({ initialItems }: GalleryProps) {
                 flexDirection: 'column',
                 justifyContent: 'flex-end',
                 height: '50%',
-                transition: 'opacity 0.3s ease'
+                transition: 'opacity 0.3s ease',
+                zIndex: 2
               }}>
                 <span style={{
                   color: 'var(--accent-gold)',

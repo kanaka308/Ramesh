@@ -1,7 +1,8 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import db from '@/db';
+import repo from '@/db/repo';
 import { verifySessionToken } from '@/lib/auth';
+import CoursePlayerClient from './CoursePlayerClient';
 
 interface Course {
   id: number;
@@ -33,23 +34,23 @@ export default async function CoursePlayerPage({ params }: { params: { id: strin
     redirect(`/login?redirect=/courses/${courseId}`);
   }
 
-  // Resolve student and check purchase completion
-  const student = db.prepare('SELECT id FROM students WHERE email = ?').get(email) as { id: number } | undefined;
-  if (!student) {
-    redirect('/login');
-  }
-
-  const purchase = db.prepare("SELECT id FROM purchases WHERE student_id = ? AND course_id = ? AND status = 'completed'")
-    .get(student.id, courseId);
-
-  if (!purchase) {
+  const hasAccess = await repo.checkCourseAccess(email, courseId);
+  if (!hasAccess) {
     // Student has not purchased this course yet
     redirect('/courses');
   }
 
   // Fetch course and its secure video modules
-  const course = db.prepare('SELECT * FROM recorded_courses WHERE id = ?').get(courseId) as Course;
-  const modules = db.prepare('SELECT * FROM video_modules WHERE course_id = ? ORDER BY sort_order ASC').all(courseId) as VideoModule[];
+  const course = await repo.getRecordedCourse(courseId);
+  if (!course) {
+    redirect('/courses');
+  }
+  const modules = await repo.getVideoModules(courseId);
+
+  // Fetch student rating if any
+  const allRatings = await repo.getCourseRatings();
+  const courseRatings = allRatings[String(courseId)] || {};
+  const initialUserRating = email ? (courseRatings[email] || null) : null;
 
   return (
     <div style={{
@@ -68,101 +69,11 @@ export default async function CoursePlayerPage({ params }: { params: { id: strin
         <p style={{ color: 'var(--text-secondary)', fontSize: '15px', marginTop: '6px' }}>{course.description}</p>
       </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '3fr 1fr',
-        gap: '40px',
-        alignItems: 'flex-start'
-      }}>
-        {/* Left Column: Player and Active Video Details */}
-        <div className="glass-card" style={{ padding: '24px' }}>
-          {modules.length > 0 ? (
-            <div>
-              {/* Domain-locked Iframe Stream Player */}
-              <div style={{
-                position: 'relative',
-                width: '100%',
-                aspectRatio: '16/9',
-                borderRadius: '8px',
-                overflow: 'hidden',
-                background: '#000',
-                border: '1px solid rgba(255, 255, 255, 0.05)',
-                marginBottom: '20px'
-              }}>
-                <iframe
-                  id="secure-course-stream-player"
-                  src={modules[0].secure_video_url}
-                  title={modules[0].title}
-                  allow="autoplay; fullscreen; picture-in-picture"
-                  allowFullScreen
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    border: 'none'
-                  }}
-                />
-              </div>
-              <h2 style={{ fontSize: '20px', fontWeight: 600 }}>1. {modules[0].title}</h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '13px', marginTop: '5px' }}>
-                Secure content stream active. Direct downloads and URL sharing are restricted by domain policies.
-              </p>
-            </div>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '60px 0' }}>
-              <span style={{ fontSize: '48px' }}>📭</span>
-              <p style={{ color: 'var(--text-secondary)', marginTop: '20px' }}>No video modules found for this course yet.</p>
-            </div>
-          )}
-        </div>
-
-        {/* Right Column: Lecture Modules Playlist List */}
-        <div className="glass-card" style={{ padding: '20px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 600, borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '12px', marginBottom: '15px' }}>
-            Course Playlist
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {modules.map((mod, idx) => (
-              <div
-                key={mod.id}
-                id={`module-item-${mod.id}`}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  background: idx === 0 ? 'rgba(212, 175, 55, 0.05)' : 'rgba(255, 255, 255, 0.02)',
-                  border: idx === 0 ? '1px solid var(--accent-gold)' : '1px solid transparent',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease'
-                }}
-              >
-                <div style={{
-                  fontSize: '16px',
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '50%',
-                  background: idx === 0 ? 'var(--accent-gold)' : 'rgba(255,255,255,0.05)',
-                  color: idx === 0 ? '#000' : 'var(--text-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 600
-                }}>
-                  {idx + 1}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <h4 style={{ fontSize: '13px', color: '#fff', fontWeight: idx === 0 ? 600 : 500 }}>{mod.title}</h4>
-                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Secure Stream</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <CoursePlayerClient 
+        modules={modules} 
+        courseId={courseId} 
+        initialUserRating={initialUserRating} 
+      />
     </div>
   );
 }

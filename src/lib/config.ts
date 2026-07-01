@@ -18,7 +18,7 @@ export const config = {
   },
   
   admin: {
-    username: process.env.ADMIN_USERNAME || 'admin',
-    password: process.env.ADMIN_PASSWORD || 'password123',
+    username: process.env.ADMIN_USERNAME || 'ramesh',
+    password: process.env.ADMIN_PASSWORD || 'ramesh123',
   }
 };

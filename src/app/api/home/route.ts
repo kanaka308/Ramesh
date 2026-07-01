@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
-import db from '@/db';
+import repo from '@/db/repo';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const batches = db.prepare('SELECT * FROM bootcamp_batches').all();
-    const portfolio = db.prepare('SELECT * FROM portfolio_images ORDER BY display_order ASC').all();
-    const testimonials = db.prepare('SELECT * FROM testimonials ORDER BY display_order ASC').all();
+    const batches = await repo.getBootcampBatches();
+    const portfolio = await repo.getPortfolioImages();
+    const testimonials = await repo.getTestimonials();
 
     return NextResponse.json({
       success: true,

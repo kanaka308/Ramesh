@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import db from '@/db';
+import repo from '@/db/repo';
 import { verifySessionToken } from '@/lib/auth';
 import TestimonialsManagerClient from './TestimonialsManagerClient';
 
@@ -23,7 +23,7 @@ export default async function AdminTestimonialsPage() {
   }
 
   // Fetch testimonials
-  const list = db.prepare('SELECT * FROM testimonials ORDER BY id DESC').all() as Testimonial[];
+  const list = (await repo.getTestimonials()).sort((a, b) => b.id - a.id) as Testimonial[];
 
   return (
     <div>

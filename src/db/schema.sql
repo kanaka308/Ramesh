@@ -63,3 +63,29 @@ CREATE TABLE IF NOT EXISTS purchases (
     FOREIGN KEY(student_id) REFERENCES students(id) ON DELETE CASCADE,
     FOREIGN KEY(course_id) REFERENCES recorded_courses(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS site_settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS bootcamp_registrations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    batch_id INTEGER NOT NULL,
+    student_name TEXT NOT NULL,
+    student_email TEXT NOT NULL,
+    student_phone TEXT,
+    status TEXT NOT NULL DEFAULT 'enquired',
+    registered_at TEXT NOT NULL,
+    FOREIGN KEY(batch_id) REFERENCES bootcamp_batches(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS admin_notifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    message TEXT NOT NULL,
+    type TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    is_read INTEGER DEFAULT 0
+);
+

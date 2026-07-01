@@ -15,13 +15,14 @@ interface TestimonialSliderProps {
 
 export default function TestimonialSlider({ initialTestimonials }: TestimonialSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [testimonials] = useState<Testimonial[]>(initialTestimonials);
+  const testimonials = initialTestimonials || [];
 
-  if (testimonials.length === 0) {
+  if (!testimonials || testimonials.length === 0) {
     return null;
   }
 
-  const current = testimonials[currentIndex];
+  const safeIndex = currentIndex >= testimonials.length ? 0 : currentIndex;
+  const current = testimonials[safeIndex];
 
   const handleNext = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % testimonials.length);

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import db from '@/db';
+import repo from '@/db/repo';
 import { generateMagicLinkToken } from '@/lib/auth';
 import { sendMagicLinkEmail } from '@/lib/mail';
 
@@ -19,11 +19,10 @@ export async function POST(req: NextRequest) {
     const lowercaseEmail = email.toLowerCase().trim();
 
     // Check if student exists, otherwise create new student
-    const student = db.prepare('SELECT id FROM students WHERE email = ?').get(lowercaseEmail) as { id: number } | undefined;
+    const student = await repo.getStudentByEmail(lowercaseEmail);
     
     if (!student) {
-      db.prepare('INSERT INTO students (email, created_at) VALUES (?, ?)')
-        .run(lowercaseEmail, new Date().toISOString());
+      await repo.createStudent(lowercaseEmail);
     }
 
     // Generate JWT magic token

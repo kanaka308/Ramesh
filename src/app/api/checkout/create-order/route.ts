@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import db from '@/db';
+import repo from '@/db/repo';
 import { verifySessionToken } from '@/lib/auth';
 import { config } from '@/lib/config';
 import Razorpay from 'razorpay';
 
 export const dynamic = 'force-dynamic';
-
-interface Course {
-  id: number;
-  title: string;
-  price: number;
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,31 +20,49 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { courseId } = await req.json();
+    const { courseId, materialId } = await req.json();
 
-    if (!courseId) {
+    if (!courseId && !materialId) {
       return NextResponse.json(
-        { success: false, error: 'Course ID is required.' },
+        { success: false, error: 'Course ID or Material ID is required.' },
         { status: 400 }
       );
     }
 
-    // Fetch course details
-    const course = db.prepare('SELECT id, title, price FROM recorded_courses WHERE id = ?').get(courseId) as Course | undefined;
+    let price = 0;
+    let receipt = '';
 
-    if (!course) {
-      return NextResponse.json(
-        { success: false, error: 'Course not found.' },
-        { status: 404 }
-      );
+    if (materialId) {
+      const materials = await repo.getMaterials();
+      const material = materials.find(m => m.id === Number(materialId));
+      if (!material) {
+        return NextResponse.json(
+          { success: false, error: 'Material not found.' },
+          { status: 404 }
+        );
+      }
+      price = material.price;
+      receipt = `receipt_m_${material.id}_e_${email.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    } else {
+      // Fetch course details
+      const course = await repo.getRecordedCourse(courseId);
+
+      if (!course) {
+        return NextResponse.json(
+          { success: false, error: 'Course not found.' },
+          { status: 404 }
+        );
+      }
+      price = course.price;
+
+      // Resolve student
+      let student = await repo.getStudentByEmail(email);
+      if (!student) {
+        const studentId = await repo.createStudent(email);
+        student = { id: studentId };
+      }
+      receipt = `receipt_c_${course.id}_s_${student.id}`;
     }
-
-    // Resolve student
-    const student = db.prepare('SELECT id FROM students WHERE email = ?').get(email) as { id: number };
-
-    // Register pending purchase first to keep track of state transitions
-    const pendingPurchase = db.prepare('SELECT id FROM purchases WHERE student_id = ? AND course_id = ? AND status = ?')
-      .get(student.id, course.id, 'pending');
 
     let orderId = '';
 
@@ -65,26 +77,27 @@ export async function POST(req: NextRequest) {
       });
 
       const order = await rzp.orders.create({
-        amount: course.price, // Amount in paise
+        amount: price, // Amount in paise
         currency: 'INR',
-        receipt: `receipt_c_${course.id}_s_${student.id}`,
+        receipt,
       });
 
       orderId = order.id;
     }
 
-    if (!pendingPurchase) {
-      db.prepare('INSERT INTO purchases (student_id, course_id, payment_id, status, purchased_at) VALUES (?, ?, ?, ?, ?)')
-        .run(student.id, course.id, orderId, 'pending', new Date().toISOString());
+    if (materialId) {
+      await repo.registerPendingMaterialPurchase(email, Number(materialId), orderId);
     } else {
-      db.prepare('UPDATE purchases SET payment_id = ?, purchased_at = ? WHERE id = ?')
-        .run(orderId, new Date().toISOString(), (pendingPurchase as any).id);
+      const student = await repo.getStudentByEmail(email);
+      if (student) {
+        await repo.registerPendingPurchase(student.id, courseId, orderId);
+      }
     }
 
     return NextResponse.json({
       success: true,
       orderId,
-      amount: course.price,
+      amount: price,
       currency: 'INR',
       key: config.razorpay.keyId
     });

@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import db from '@/db';
+import repo from '@/db/repo';
 import { verifySessionToken } from '@/lib/auth';
 import GalleryManagerClient from './GalleryManagerClient';
 
@@ -23,7 +23,7 @@ export default async function AdminGalleryPage() {
   }
 
   // Fetch gallery items
-  const items = db.prepare('SELECT * FROM portfolio_images ORDER BY id DESC').all() as GalleryItem[];
+  const items = (await repo.getPortfolioImages()).sort((a, b) => b.id - a.id) as GalleryItem[];
 
   return (
     <div>

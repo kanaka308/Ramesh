@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import db from '@/db';
+import repo from '@/db/repo';
 import { verifySessionToken } from '@/lib/auth';
 import CoursesEditorClient from './CoursesEditorClient';
 
@@ -24,14 +24,14 @@ export default async function AdminCoursesPage() {
   }
 
   // Fetch courses
-  const courses = db.prepare('SELECT * FROM recorded_courses').all() as Course[];
+  const courses = await repo.getRecordedCourses() as Course[];
 
   return (
     <div>
       <div style={{ marginBottom: '30px' }}>
         <h1 style={{ fontSize: '28px', fontFamily: 'var(--font-serif)' }} className="gradient-text">Manage Recorded Courses</h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '5px' }}>
-          Adjust prices for student storefront recorded masterclasses.
+          Add, edit, or delete student storefront recorded masterclasses and adjust pricing.
         </p>
       </div>
 

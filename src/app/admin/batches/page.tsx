@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import db from '@/db';
+import repo from '@/db/repo';
 import { verifySessionToken } from '@/lib/auth';
 import BatchesEditorClient from './BatchesEditorClient';
 
@@ -24,14 +24,14 @@ export default async function AdminBatchesPage() {
   }
 
   // Fetch batches
-  const batches = db.prepare('SELECT * FROM bootcamp_batches').all() as Bootcamp[];
+  const batches = await repo.getBootcampBatches() as Bootcamp[];
 
   return (
     <div>
       <div style={{ marginBottom: '30px' }}>
         <h1 style={{ fontSize: '28px', fontFamily: 'var(--font-serif)' }} className="gradient-text">Manage Bootcamp Batches</h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '5px' }}>
-          Update upcoming schedules and toggle registration availability for the Vijayapur on-site cohorts.
+          Add, edit/rename, or delete upcoming schedules and toggle registration availability for on-site cohorts.
         </p>
       </div>
 

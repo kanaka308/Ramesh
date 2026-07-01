@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import db from '@/db';
+import repo from '@/db/repo';
 import { verifyWebhookSignature } from '@/lib/payments';
 import { config } from '@/lib/config';
 
@@ -29,10 +29,41 @@ export async function POST(req: NextRequest) {
 
     if (isValid) {
       // Update purchase record to completed
-      const updateResult = db.prepare("UPDATE purchases SET status = 'completed', purchased_at = ? WHERE payment_id = ?")
-        .run(new Date().toISOString(), razorpay_order_id);
+      let updated = await repo.completePurchase(razorpay_order_id);
+      let isMaterial = false;
 
-      if (updateResult.changes > 0) {
+      if (!updated) {
+        updated = await repo.completeMaterialPurchase(razorpay_order_id);
+        isMaterial = true;
+      }
+
+      if (updated) {
+        // Create admin notification (preventing duplicates)
+        const notifCheck = await repo.checkNotificationExists(`%${razorpay_order_id}%`);
+        if (!notifCheck) {
+          if (isMaterial) {
+            const order = await repo.getMaterialOrderById(razorpay_order_id);
+            if (order) {
+              const materials = await repo.getMaterials();
+              const mat = materials.find(m => m.id === order.materialId);
+              await repo.addNotification(
+                'New Material Purchase',
+                `User ${order.email} purchased template "${mat ? mat.title : 'Unknown'}" for ₹${(mat ? mat.price : 0) / 100} (Order ID: ${razorpay_order_id})`,
+                'payment'
+              );
+            }
+          } else {
+            const purchase = await repo.getPurchaseByPaymentId(razorpay_order_id);
+
+            if (purchase) {
+              await repo.addNotification(
+                'New Course Purchase',
+                `Student ${purchase.student_email} purchased "${purchase.course_title}" for ₹${purchase.price / 100} (Order ID: ${razorpay_order_id})`,
+                'payment'
+              );
+            }
+          }
+        }
         return NextResponse.json({ success: true, message: 'Payment verified and unlocked.' });
       } else {
         return NextResponse.json(

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import db from '@/db';
+import repo from '@/db/repo';
 import { verifySessionToken } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -26,8 +26,7 @@ export async function POST(req: NextRequest) {
     if (type === 'batch') {
       const { next_date, is_active } = body;
       
-      db.prepare('UPDATE bootcamp_batches SET next_date = ?, is_active = ? WHERE id = ?')
-        .run(next_date, is_active, id);
+      await repo.updateBatchStatusAndDate(id, next_date, is_active);
         
       return NextResponse.json({ success: true, message: 'Bootcamp batch updated successfully.' });
       
@@ -38,8 +37,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ success: false, error: 'Invalid price amount.' }, { status: 400 });
       }
       
-      db.prepare('UPDATE recorded_courses SET price = ? WHERE id = ?')
-        .run(price, id);
+      await repo.updateCoursePrice(id, Number(price));
 
       return NextResponse.json({ success: true, message: 'Recorded course pricing updated successfully.' });
     }

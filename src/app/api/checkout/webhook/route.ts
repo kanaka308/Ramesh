@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import db from '@/db';
+import repo from '@/db/repo';
 import { verifyWebhookSignature } from '@/lib/payments';
 import { config } from '@/lib/config';
 
@@ -27,10 +27,41 @@ export async function POST(req: NextRequest) {
       const orderId = payload.payload.payment.entity.order_id;
       
       // Update purchase record to completed
-      db.prepare("UPDATE purchases SET status = 'completed', purchased_at = ? WHERE payment_id = ? AND status != 'completed'")
-        .run(new Date().toISOString(), orderId);
+      let updated = await repo.completePurchase(orderId);
+      let isMaterial = false;
+      if (!updated) {
+        updated = await repo.completeMaterialPurchase(orderId);
+        isMaterial = true;
+      }
         
-      console.log(`[Webhook] Unlocked course access for Order ID: ${orderId}`);
+      console.log(`[Webhook] Unlocked ${isMaterial ? 'material' : 'course'} access for Order ID: ${orderId}`);
+
+      // Create admin notification (preventing duplicates)
+      const notifCheck = await repo.checkNotificationExists(`%${orderId}%`);
+      if (!notifCheck && updated) {
+        if (isMaterial) {
+          const order = await repo.getMaterialOrderById(orderId);
+          if (order) {
+            const materials = await repo.getMaterials();
+            const mat = materials.find(m => m.id === order.materialId);
+            await repo.addNotification(
+              'New Material Purchase',
+              `User ${order.email} purchased template "${mat ? mat.title : 'Unknown'}" for ₹${(mat ? mat.price : 0) / 100} (Order ID: ${orderId})`,
+              'payment'
+            );
+          }
+        } else {
+          const purchase = await repo.getPurchaseByPaymentId(orderId);
+
+          if (purchase) {
+            await repo.addNotification(
+              'New Course Purchase',
+              `Student ${purchase.student_email} purchased "${purchase.course_title}" for ₹${purchase.price / 100} (Order ID: ${orderId})`,
+              'payment'
+            );
+          }
+        }
+      }
     }
 
     return NextResponse.json({ status: 'processed' });

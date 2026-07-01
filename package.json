@@ -10,13 +10,17 @@
     "test": "jest"
   },
   "dependencies": {
-    "better-sqlite3": "^9.4.3",
+    "@supabase/ssr": "^0.12.0",
+    "@supabase/supabase-js": "^2.108.2",
     "jsonwebtoken": "^9.0.2",
     "next": "14.2.5",
     "nodemailer": "^6.9.13",
     "razorpay": "^2.9.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^9.4.3"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.9",
