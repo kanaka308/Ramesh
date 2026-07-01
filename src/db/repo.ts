@@ -1,6 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 import sqliteDb from './index';
 
+// Polyfill global WebSocket for environments without native support (Node.js < 22)
+// to prevent Supabase Client instantiation from crashing.
+if (typeof globalThis.WebSocket === 'undefined') {
+  globalThis.WebSocket = class {} as any;
+}
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
