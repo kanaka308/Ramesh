@@ -19,7 +19,7 @@ if (isSupabaseActive) {
   });
 } else {
   // Dynamically require better-sqlite3 to avoid crashes in environments where it is not installed/needed
-  const Database = require('better-sqlite3');
+  const Database = eval('require')('better-sqlite3');
   
   const dbPath = path.resolve(process.cwd(), process.env.DATABASE_URL || 'academy.db');
 
